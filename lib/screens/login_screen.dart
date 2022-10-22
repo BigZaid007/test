@@ -108,7 +108,7 @@ class _loginScreenState extends State<loginScreen> {
                   child: GestureDetector(
                     onTap: (){
                       if (formkey.currentState!.validate())
-                        login(phoneController.text, passwordController.text);
+                      SignIn(phoneController.text, passwordController.text);
 
 
                     },
@@ -160,17 +160,40 @@ class _loginScreenState extends State<loginScreen> {
     );
   }
 
-  Future<void> login(String phone,String pass) async
-  {
+ void SignIn(String phone , password) async {
 
-    var response=await http.post(Uri.parse(loginUrl),body: ({
-      "userName": phone,
-      "password": pass
-    }));
-    if(response.statusCode==200)
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>WelcomeScreen()));
-    else
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Invalid')));
+    try{
+
+      Response response = await post(
+          Uri.parse("https://reqres.in/api/login"),
+          body: {
+            'email':phone,
+            'password':password
+          },
+      );
+
+      if(response.statusCode == 200){
+
+        var data = jsonDecode(response.body.toString());
+        print(data['token']);
+        print(data['message']);
+        print('Login successfully');
+        responseToken=data['token'];
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>WelcomeScreen()));
+
+
+      }else {
+        var data = jsonDecode(response.body.toString());
+        print('failed');
+        print(response.body);
+        print(data['message']);
+
+
+
+      }
+    }catch(e){
+      print(e.toString());
+    }
   }
   
 
